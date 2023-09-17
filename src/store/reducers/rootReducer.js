@@ -5,6 +5,7 @@ const initState = {
     os: [],
     playWith: [],
     language: [],
+    role: [],
     games: [],
     detailGame: [],
     game: {},
@@ -15,9 +16,18 @@ const initState = {
     allTagGame: [],
     topGame18: [],
     gameByKeyword: [],
+    gameByCategory: [],
+    categoryByTagId: [],
+    allAccount: [],
+    allGame: [],
+
+
+
     userLogin: JSON.parse(localStorage.getItem('userLogin'))
 
 }
+
+var d = new Date();
 
 
 const rootReducer = (state = initState, action) => {
@@ -49,9 +59,8 @@ const rootReducer = (state = initState, action) => {
                 ...state,
             }
             break;
-
-        case 'ALLGAME':
-            state.games = action.data;
+        case 'ROLE':
+            state.role = action.data;
             return {
                 ...state,
             }
@@ -80,10 +89,42 @@ const rootReducer = (state = initState, action) => {
 
         case 'LOGIN-SYSTEM':
             localStorage.setItem('userLogin', JSON.stringify(action.data));
+            if (action.rememberLogin) {
+                localStorage.setItem('expire', JSON.stringify({
+                    endTime: d.getTime() + 604800000
+                }));
+            } else {
+                localStorage.setItem('expire', JSON.stringify({
+                    endTime: d.getTime() + 10800000
+                }));
+            }
             return {
                 ...state
             }
             break;
+
+        case 'LOGOUT':
+            localStorage.removeItem("userLogin")
+            localStorage.removeItem("expire")
+
+            return {
+                ...state
+            }
+            break;
+        case 'CHECK-EXPIRE-ACCOUNT':
+            let expire = JSON.parse(localStorage.getItem('expire'))
+            let currentTime = d.getTime();
+            if (expire && currentTime >= expire.endTime) {
+                localStorage.removeItem("userLogin")
+                localStorage.removeItem("expire")
+            }
+
+            return {
+                ...state
+            }
+            break;
+
+
 
         case 'GAME-BY-KEYWORD':
             state.gameByKeyword = action.data;
@@ -92,7 +133,36 @@ const rootReducer = (state = initState, action) => {
             }
             break;
 
-            
+        case 'GAME-BY-CATEGORY':
+            state.gameByCategory = action.data;
+            return {
+                ...state,
+            }
+            break;
+
+        case 'CATEGORY-BY-TAGID':
+            state.categoryByTagId = action.data;
+            return {
+                ...state,
+            }
+            break;
+
+        case 'ALL-ACCOUNT':
+            state.allAccount = action.data;
+            return {
+                ...state,
+            }
+            break;
+
+        case 'ALL-GAME':
+            state.allGame = action.data;
+            return {
+                ...state,
+            }
+            break;
+
+
+
 
 
         case 'TOPGAME':

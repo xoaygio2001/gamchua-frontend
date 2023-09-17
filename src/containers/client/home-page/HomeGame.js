@@ -10,6 +10,10 @@ import * as Action from '../../../store/actions';
 
 import { NavLink } from "react-router-dom";
 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 
 
 class HomeGame extends Component {
@@ -21,14 +25,15 @@ class HomeGame extends Component {
             newGame: [],
             hotGame: [],
             navGameActive: 'NEW',
-            topGame18: []
+            game18: [],
+            allDataGameNumber: 70,
+            currentPage: 1,
+            gameNumber: 20,
         }
     }
 
     async componentDidMount() {
-        this.props.getTopGame(10, 'NEW')
-        this.props.getAllTopGame18(10)
-
+        this.props.getTopGame(this.state.gameNumber, 'NEW')
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -42,9 +47,9 @@ class HomeGame extends Component {
                 hotGame: this.props.hotGame
             })
         }
-        if (prevProps.hotGame !== this.props.hotGame) {
+        if (prevProps.game18 !== this.props.game18) {
             this.setState({
-                topGame18: this.props.topGame18
+                game18: this.props.game18
             })
         }
 
@@ -55,7 +60,7 @@ class HomeGame extends Component {
             this.setState({
                 navGameActive: type
             })
-            this.props.getTopGame(5, type)
+            this.props.getTopGame(this.state.gameNumber, type)
         }
     }
 
@@ -64,8 +69,10 @@ class HomeGame extends Component {
 
     }
 
+
+
     render() {
-        let { newGame, hotGame, navGameActive, topGame18 } = this.state
+        let { newGame, hotGame, navGameActive, game18 } = this.state
         let data = [];
 
         switch (navGameActive) {
@@ -76,7 +83,7 @@ class HomeGame extends Component {
                 data = hotGame
                 break;
             case '18':
-                data = topGame18
+                data = game18
                 break;
 
             default:
@@ -103,43 +110,45 @@ class HomeGame extends Component {
                     </div>
                 </div>
 
-                <div className="games">
+                <Container >
+                    <Row className="games"> 
 
-                    {data && data.length > 0 &&
-                        data.map((item, index) => {
-                            return (
-                                <div key={index} className="game">
-                                    <div className="img"
-                                        style={{ backgroundImage: `url(${item.img})` }}
-                                    />
-                                    <div className="name">{item.name}</div>
+                        {data && data.length > 0 &&
+                            data.map((item, index) => {
+                                return (
+                                    <Col xs={5} md={3} key={index} className="game">
+                                            <div className="img"
+                                                style={{ backgroundImage: `url(${item.img})` }}
+                                            />
+                                            <div className="name">{item.name}</div>
 
-                                    <div className="tag">
-                                        <i className="fas fa-tags"></i>
-                                        <p>
-                                            {item.TagGames && item.TagGames.length > 0 &&
-                                                item.TagGames.map((itemTag, indexMap) => {
-                                                    return (
-                                                        `${itemTag.AllCode.value},   `
+                                            <div className="tag">
+                                                <i className="fas fa-tags"></i>
+                                                <p>
+                                                    {item.TagGames && item.TagGames.length > 0 &&
+                                                        item.TagGames.map((itemTag, indexMap) => {
+                                                            return (
+                                                                `${itemTag.AllCode.value},   `
 
-                                                    )
-                                                }
-                                                )
-                                            }
-                                        </p>
-                                    </div>
-                                    <div className="see">
-                                        <NavLink className="download" to={`/detail-game/${item.id}`}>
-                                            TẢI GAME
-                                        </NavLink>;
-                                    </div>
-                                </div>
-                            )
-                        })
+                                                            )
+                                                        }
+                                                        )
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div className="see">
+                                                <NavLink className="download" to={`/detail-game/${item.id}`}>
+                                                    TẢI GAME
+                                                </NavLink>;
+                                            </div>
+                                    </Col>
+                                )
+                            })
 
-                    }
+                        }
 
-                </div>
+                    </Row>
+                </Container>
 
             </div>
         )
@@ -151,13 +160,12 @@ const mapStateToProps = (state) => {
         newGame: state.newGame,
         hotGame: state.hotGame,
         game18: state.game18,
-        topGame18: state.topGame18
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        getTopGame: (limit, type) => dispatch(Action.getTopGameAction(limit, type)),
+        getTopGame: (limit, type,pageNumber) => dispatch(Action.getTopGameAction(limit, type,pageNumber)),
         getAllTopGame18: (limit) => dispatch(Action.getAllTopGame18Action(limit)),
 
 

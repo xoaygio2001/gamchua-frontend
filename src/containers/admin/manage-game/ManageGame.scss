@@ -47,6 +47,37 @@ body {
                 .label{
                     color: white;
                 }
+
+                .add-user {
+                    width: 100%;
+                    display: flex;
+                    justify-content: right;
+    
+                    .add {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 40px;
+                        width: 130px;
+                        color: white;
+                        font-size: 18px;
+                        font-weight: 500;
+                        margin: 20px 0;
+                        background-color: rgb(26, 175, 212);
+                        border-radius: 10px;
+                        margin-right: 20px;
+    
+                        cursor: pointer;
+    
+                        &:hover {
+                            background-color: blue;
+                        }
+    
+                        i {
+                            margin-right: 5px;
+                        }
+                    }
+                }
             }
 
         }

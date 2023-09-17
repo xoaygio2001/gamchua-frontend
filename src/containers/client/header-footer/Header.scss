@@ -118,7 +118,7 @@
 
                     .img {
                         height: 70px;
-                        width: 70px;
+                        width: 100px;
                         background-image: url("https://i.ibb.co/QNwyf9n/146087794-264700551678261-7929059621239927191-n.jpg");
                         background-position: center;
                         background-size: contain;
@@ -150,51 +150,106 @@
 
 
         .account {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-left: 10px;
 
-            .inform {
-                background-color: rgb(146, 146, 146);
-                height: 30px;
-                width: 30px;
-                border-radius: 50%;
-                text-align: center;
+            .infor{
+                display: flex;
                 justify-content: center;
+                align-items: center;
+                margin-left: 10px;
 
-                margin-right: 5px;
+                .inform {
+                    background-color: rgb(146, 146, 146);
+                    height: 30px;
+                    width: 30px;
+                    border-radius: 50%;
+                    text-align: center;
+                    justify-content: center;
+    
+                    margin-right: 5px;
+    
+                    .fa-bell {
+                        margin-top: 2px;
+                        font-size: 25px;
+                    }
+                }
+    
+    
+                .sign-up {
+                    margin-left: 10px;
+                    display: flex;
+                    justify-content: center;
+                    color: white;
+                    font-weight: 700;
+                    cursor: pointer;
+                }
+    
+                .sign-in {
+                    margin-left: 10px;
+                    margin-right: 10px;
+                    display: flex;
+                    justify-content: center;
+                    color: white;
+                    font-weight: 700;
+                    cursor: pointer;
+    
+                }
+    
+                .isLogin {
+                    color: white;
+                    margin-right: 10px;
+                    margin-left: 10px;
 
-                .fa-bell {
-                    margin-top: 2px;
-                    font-size: 25px;
+                    .fa-sort-down{
+                        color: white;
+                        margin-right: 10px;
+                        margin-left: 10px;
+                        font-size: 16px;
+                        margin-top: -5px;
+                        cursor: pointer;
+                    }
+                }
+    
+
+            }
+
+
+
+            .nav-account{
+                color: black;
+                display: none;
+                position: absolute;
+                background-color: white;
+                width: 170px;
+                margin-left: -50px;
+                border-radius: 7px;
+                
+                div{
+
+                    display: flex;
+                    padding: 10px 0 0 10px;
+                    cursor: pointer;
+
+                    i{
+                        font-size: 18px;
+                    }
+                    p{
+                        margin-left: 10px;
+                        font-size: 15px;
+                        font-weight: 600;
+                    }
+
+                    &:hover{
+                        background-color: rgba($color: #4d4d4d, $alpha: 0.3);
+
+                        i, p {
+                            color: red;
+                        }
+                    }
                 }
             }
 
-            .sign-up {
-                margin-left: 10px;
-                display: flex;
-                justify-content: center;
-                color: white;
-                font-weight: 700;
-                cursor: pointer;
-            }
-
-            .sign-in {
-                margin-left: 10px;
-                margin-right: 10px;
-                display: flex;
-                justify-content: center;
-                color: white;
-                font-weight: 700;
-                cursor: pointer;
-
-            }
-
-            .isLogin {
-                color: white;
-                margin-right: 10px;
-                margin-left: 10px;
+            .active{
+                display: block;
             }
         }
 

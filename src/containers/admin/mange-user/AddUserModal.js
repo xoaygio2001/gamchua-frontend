@@ -12,7 +12,7 @@ import { NavLink } from "react-router-dom";
 
 import { Dropdown, DropdownButton, NavDropdown } from 'react-bootstrap';
 
-import './LoginModal.scss'
+import './AddUserModal.scss'
 
 import { useParams } from 'react-router-dom';
 
@@ -21,12 +21,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 
+import { createNewAccount } from '../../../services/userService'
+
 
 function withParams(Component) {
     return props => <Component {...props} params={useParams()} history={useNavigate()} />;
 }
 
-class LoginModal extends Component {
+class AddUserModal extends Component {
 
     constructor(props) {
         super(props);
@@ -35,35 +37,26 @@ class LoginModal extends Component {
             getAllTagGame: [],
             username: '',
             password: '',
-            rememberLogin: false
+
+            arrRole: [],
+            selectRole: 'null',
         }
     }
 
     async componentDidMount() {
         this.props.getAllTagGame()
 
-    }
 
-    handlePopupSiginSignup = (state) => {
-        this.setState({
-            setShow: state
-        })
     }
 
 
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // if (prevProps.setShow !== this.props.setShow) {
-        //     this.setState({
-        //         setShow: this.props.setShow
-        //     })
-        // }
-
-        // if (prevProps.setShow !== this.props.setShow) {
-        //     this.setState({
-        //         setShow: this.props.setShow
-        //     })
-        // }
+        if (prevProps.role !== this.props.role) {
+            this.setState({
+                arrRole: this.props.role
+            })
+        }
     }
 
     handleGoHome = () => {
@@ -79,30 +72,33 @@ class LoginModal extends Component {
 
     }
 
-    handleOnChangeCheckBox = (event, id) => {
-        let stateCopy = { ...this.state }
-        stateCopy[id] = event.target.checked;
-        this.setState({
-            ...stateCopy
-        })
+    handleChangeSelectGameInfor = (target, type) => {
+        switch (type) {
 
+
+            case 'ROLE':
+                this.setState({
+                    selectRole: target.value
+                })
+                break;
+
+
+        }
     }
 
     handleSignUp = async () => {
-        let { username, password, rememberLogin } = this.state
-        if (username && password) {
-            let res = await this.props.getLoginIntoSystem(username, password, rememberLogin)
-            if (res && res.errCode === 0) {
-                if (res.data.roleId == "R1") {
-                    this.props.history('/admin')
-                }
+        let { username, password, selectRole } = this.state
+        if (username && password && selectRole != 'null') {
+                await this.props.CreateNewAccount({
+                    username: username,
+                    password: password,
+                    roleId: selectRole
+                })
 
-                window.location.reload()
-                console.log('res ', res)
-
-            } else {
-                toast.warning('Thông tin tài khoản hoặc mật khẩu không chính xác')
-            }
+                this.setState({
+                    username: '',
+                    password: '',
+                })
 
         } else {
             toast.warning('Vui lòng điền đầy đủ thông tin!')
@@ -111,12 +107,13 @@ class LoginModal extends Component {
 
     render() {
 
-        let { username, password, rememberLogin } = this.state;
         let { setShow, handlePopupSiginSignup } = this.props
+        let { username, password, password2, arrLanguage, arrRole } = this.state
+
 
 
         return (
-            <Modal className="LoginModal" show={setShow} onHide={() => handlePopupSiginSignup(false)}>
+            <Modal className="AddUserModal" show={setShow} onHide={() => handlePopupSiginSignup(false)}>
                 <Modal.Header className="modal-header">
                     <div class="logo"></div>
                     <Modal.Title>Đăng nhập vào Game Chùa</Modal.Title>
@@ -132,34 +129,41 @@ class LoginModal extends Component {
                                 autoFocus
                                 value={username}
                                 onChange={(e) => this.handleOnChangeText(e, 'username')}
-
                             />
                         </Form.Group>
                         <Form.Group
-                            className="mb-3 input-infor"
-
-                        >
+                            className="mb-3 input-infor">
                             <Form.Label>Mặt khẩu</Form.Label>
                             <Form.Control
                                 type="password"
                                 placeholder="Mặt khẩu"
                                 value={password}
                                 onChange={(e) => this.handleOnChangeText(e, 'password')}
-
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-3 check">
-                            <Form.Check
-                                onChange={(e) => this.handleOnChangeCheckBox(e, 'rememberLogin')}
-                                type="checkbox" label="Ghi nhớ đăng nhập" />
+
+                     
+
+
+                        <Form.Group className="mb-3 input-infor">
+                            <Form.Label className="label">Phân loại</Form.Label>
+                            <Form.Select
+                                onChange={(e) => this.handleChangeSelectGameInfor(e.target, 'ROLE')}
+                                aria-label="Default select example">
+                                <option value={'null'} >Open this select menu</option>
+                                {arrRole && arrRole.length > 0 &&
+                                    arrRole.map((item, index) => {
+                                        return (
+                                            <option key={index} value={item.keyMap}>{item.value}</option>
+                                        )
+                                    })
+                                }
+                            </Form.Select>
                         </Form.Group>
 
-                        <Form.Group
-                            className="mb-3 access-login"
-
-                        >
-                            <div onClick={() => this.handleSignUp()} className="btn-login">Đăng nhập</div>
+                        <Form.Group className="mb-3 access-login">
+                            <div onClick={() => this.handleSignUp()} className="btn-login">Thêm</div>
                         </Form.Group>
 
                         <Form.Group
@@ -168,7 +172,7 @@ class LoginModal extends Component {
 
                         >
                             <div>
-                                <Form.Label>Đăng nhập bằng cách khác</Form.Label>
+                                <Form.Label>Đăng ký bằng cách khác</Form.Label>
                                 <div className="logos">
                                     <div class="logo-g"></div>
                                     <div class="logo-f"></div>
@@ -190,7 +194,7 @@ const mapStateToProps = (state) => {
     return {
         game: state.game,
         allTagGame: state.allTagGame,
-        userLogin: state.userLogin
+        role: state.role
     }
 }
 
@@ -198,10 +202,11 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getGameById: (id) => dispatch(Action.getGameByIdAction(id)),
         getAllTagGame: () => dispatch(Action.getAllTagGameAction()),
-        getLoginIntoSystem: (username, password, rememberLogin) => dispatch(Action.getLoginIntoSystemAction(username, password, rememberLogin)),
+        CreateNewAccount: (data) => dispatch(Action.createNewAccountAction(data)),
+        getAllCodeRedux: (type) => dispatch(Action.getAllCodeAction(type)),
 
 
     }
 }
 
-export default withParams(connect(mapStateToProps, mapDispatchToProps)(LoginModal));
+export default withParams(connect(mapStateToProps, mapDispatchToProps)(AddUserModal));

@@ -12,7 +12,7 @@ import { NavLink } from "react-router-dom";
 
 import { Dropdown, DropdownButton, NavDropdown } from 'react-bootstrap';
 
-import './LoginModal.scss'
+import './ChangePasswordModal.scss'
 
 import { useParams } from 'react-router-dom';
 
@@ -21,33 +21,30 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 
+import { createNewAccount } from '../../../services/userService'
+
 
 function withParams(Component) {
     return props => <Component {...props} params={useParams()} history={useNavigate()} />;
 }
 
-class LoginModal extends Component {
+class ChangePasswordModal extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             arrNewGame: [],
             getAllTagGame: [],
-            username: '',
+            oldPassword: '',
             password: '',
-            rememberLogin: false
+            password2: ''
         }
     }
 
     async componentDidMount() {
         this.props.getAllTagGame()
 
-    }
 
-    handlePopupSiginSignup = (state) => {
-        this.setState({
-            setShow: state
-        })
     }
 
 
@@ -79,29 +76,27 @@ class LoginModal extends Component {
 
     }
 
-    handleOnChangeCheckBox = (event, id) => {
-        let stateCopy = { ...this.state }
-        stateCopy[id] = event.target.checked;
-        this.setState({
-            ...stateCopy
-        })
-
-    }
-
     handleSignUp = async () => {
-        let { username, password, rememberLogin } = this.state
-        if (username && password) {
-            let res = await this.props.getLoginIntoSystem(username, password, rememberLogin)
-            if (res && res.errCode === 0) {
-                if (res.data.roleId == "R1") {
-                    this.props.history('/admin')
-                }
+        let { oldPassword, password, password2 } = this.state
+        if (oldPassword && password && password2) {
+            if (password === password2) {
+                await this.props.ChangePasswordAccount({
+                    username: this.props.userLogin.username,
+                    password: oldPassword,
+                    newPassword: password,
+                })
 
-                window.location.reload()
-                console.log('res ', res)
-
+                this.setState({
+                    oldPassword: '',
+                    password: '',
+                    password2: ''            
+                })
             } else {
-                toast.warning('Thông tin tài khoản hoặc mật khẩu không chính xác')
+                toast.warning("Mật khẩu mới không trùng nhau!")
+                this.setState({
+                    password: '',
+                    password2: ''       
+                })
             }
 
         } else {
@@ -111,12 +106,11 @@ class LoginModal extends Component {
 
     render() {
 
-        let { username, password, rememberLogin } = this.state;
         let { setShow, handlePopupSiginSignup } = this.props
-
+        let { oldPassword, password, password2 } = this.state
 
         return (
-            <Modal className="LoginModal" show={setShow} onHide={() => handlePopupSiginSignup(false)}>
+            <Modal className="ChangePasswordModal" show={setShow} onHide={() => handlePopupSiginSignup(false)}>
                 <Modal.Header className="modal-header">
                     <div class="logo"></div>
                     <Modal.Title>Đăng nhập vào Game Chùa</Modal.Title>
@@ -125,41 +119,39 @@ class LoginModal extends Component {
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3 input-infor" >
-                            <Form.Label>Tài khoản</Form.Label>
+                            <Form.Label>Mật khẩu cũ</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Tài khoản"
+                                placeholder="Mật khẩu cũ"
                                 autoFocus
-                                value={username}
-                                onChange={(e) => this.handleOnChangeText(e, 'username')}
-
+                                value={oldPassword}
+                                onChange={(e) => this.handleOnChangeText(e, 'oldPassword')}
                             />
                         </Form.Group>
                         <Form.Group
-                            className="mb-3 input-infor"
-
-                        >
-                            <Form.Label>Mặt khẩu</Form.Label>
+                            className="mb-3 input-infor">
+                            <Form.Label>Mặt khẩu mới</Form.Label>
                             <Form.Control
                                 type="password"
-                                placeholder="Mặt khẩu"
+                                placeholder="Mặt khẩu mới"
                                 value={password}
                                 onChange={(e) => this.handleOnChangeText(e, 'password')}
-
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-3 check">
-                            <Form.Check
-                                onChange={(e) => this.handleOnChangeCheckBox(e, 'rememberLogin')}
-                                type="checkbox" label="Ghi nhớ đăng nhập" />
+                        <Form.Group
+                            className="mb-3 input-infor">
+                            <Form.Label>Nhập lại mặt khẩu mới</Form.Label>
+                            <Form.Control
+                                type="password"
+                                placeholder="Nhập lại mặt khẩu mới"
+                                value={password2}
+                                onChange={(e) => this.handleOnChangeText(e, 'password2')}
+                            />
                         </Form.Group>
 
-                        <Form.Group
-                            className="mb-3 access-login"
-
-                        >
-                            <div onClick={() => this.handleSignUp()} className="btn-login">Đăng nhập</div>
+                        <Form.Group className="mb-3 access-login">
+                            <div onClick={() => this.handleSignUp()} className="btn-login">Đổi mật khẩu</div>
                         </Form.Group>
 
                         <Form.Group
@@ -168,7 +160,7 @@ class LoginModal extends Component {
 
                         >
                             <div>
-                                <Form.Label>Đăng nhập bằng cách khác</Form.Label>
+                                <Form.Label>Đăng ký bằng cách khác</Form.Label>
                                 <div className="logos">
                                     <div class="logo-g"></div>
                                     <div class="logo-f"></div>
@@ -190,7 +182,7 @@ const mapStateToProps = (state) => {
     return {
         game: state.game,
         allTagGame: state.allTagGame,
-        userLogin: state.userLogin
+        userLogin: state.userLogin,
     }
 }
 
@@ -198,10 +190,11 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getGameById: (id) => dispatch(Action.getGameByIdAction(id)),
         getAllTagGame: () => dispatch(Action.getAllTagGameAction()),
-        getLoginIntoSystem: (username, password, rememberLogin) => dispatch(Action.getLoginIntoSystemAction(username, password, rememberLogin)),
-
+        CreateNewAccount: (data) => dispatch(Action.createNewAccountAction(data)),
+        ChangePasswordAccount: (data) => dispatch(Action.ChangePasswordAccountAction(data)),
+        
 
     }
 }
 
-export default withParams(connect(mapStateToProps, mapDispatchToProps)(LoginModal));
+export default withParams(connect(mapStateToProps, mapDispatchToProps)(ChangePasswordModal));

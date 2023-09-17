@@ -14,15 +14,17 @@ import { Dropdown, DropdownButton, NavDropdown } from 'react-bootstrap';
 
 import './Header.scss'
 
-import { useParams } from 'react-router-dom';
-
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import LoginModal from "./LoginModal";
 
 import SignUpModal from "./SignUpModal";
 
+import ChangePasswordModal from "./ChangePasswordModal";
+
 import { Scrollbars } from 'react-custom-scrollbars';
+
+import _ from 'lodash'
 
 
 function withParams(Component) {
@@ -38,14 +40,23 @@ class Header extends Component {
             getAllTagGame: [],
             setShow: false,
             setShow2: false,
+            setShow3: false,
             search: '',
             gameByKeyword: [],
             allTagGame: [],
+            activeNavAccount: false
         }
     }
 
     async componentDidMount() {
         this.props.getAllTagGame()
+        this.checkAccount()
+    }
+
+    checkAccount = () => {
+        if (!_.isEmpty(this.props.userLogin)) {
+            this.props.CheckExpireAccount()
+        }
     }
 
     handlePopupSiginSignup = (state) => {
@@ -57,6 +68,12 @@ class Header extends Component {
     handlePopupSiginSignup2 = (state) => {
         this.setState({
             setShow2: state
+        })
+    }
+
+    handlePopupSiginSignup3 = (state) => {
+        this.setState({
+            setShow3: state
         })
     }
 
@@ -96,11 +113,27 @@ class Header extends Component {
         this.props.history(`/detail-game/${id}`)
     }
 
+    handleGoGameByCategory = (tagId) => {
+        this.props.history(`/fillter-by-category/${tagId}/1`)
+    }
+
+    hanleChangeStateNavAccount = () => {
+        let state = this.state.activeNavAccount
+        this.setState({
+            activeNavAccount: !state
+        })
+    }
+
+    handleLogout = () => {
+        this.props.LogoutAccount()
+        window.location.reload()
+    }
+
 
 
     render() {
 
-        let { allTagGame, search, gameByKeyword } = this.state
+        let { allTagGame, search, gameByKeyword, activeNavAccount } = this.state
         let { userLogin } = this.props
 
 
@@ -125,7 +158,9 @@ class Header extends Component {
                                 gameByKeyword.map((item, index) => {
                                     return (
                                         <div onClick={() => this.handleDetailGame(item.id)} className="game-search">
-                                            <div className="img" />
+                                            <div className="img"
+                                                style={{ backgroundImage: `url(${item.img})` }}
+                                            />
                                             <p>{item.name}</p>
                                         </div>
 
@@ -137,30 +172,54 @@ class Header extends Component {
 
 
                     <div class="account">
-                        <div class="inform">
-                            <i class="fas fa-bell"></i>
+                        <div className="infor">
+
+                            <div class="inform">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            {userLogin && userLogin.username ?
+                                <div className="isLogin">
+                                    Hi, {userLogin.username}
+                                    <i onClick={() => this.hanleChangeStateNavAccount()} class="fas fa-sort-down"></i>
+                                </div>
+                                :
+                                <>
+                                    <div onClick={() => this.handlePopupSiginSignup2(true)} class="sign-up">Đăng ký</div>
+                                    <div onClick={() => this.handlePopupSiginSignup(true)} class="sign-in">Đăng nhập</div>
+
+
+                                </>
+                            }
+
+
                         </div>
-                        {userLogin && userLogin.username ?
-                            <div className="isLogin">Hi, {userLogin.username}</div>
-                            :
-                            <>
-                                <div onClick={() => this.handlePopupSiginSignup2(true)} class="sign-up">Đăng ký</div>
-                                <div onClick={() => this.handlePopupSiginSignup(true)} class="sign-in">Đăng nhập</div>
-                            </>
 
-                        }
-
+                        <div className={activeNavAccount ? "nav-account active" : "nav-account"}>
+                            <div onClick={() => this.handlePopupSiginSignup3(true)}>
+                                <i class="fas fa-key"></i>
+                                <p>Đổi mật khẩu</p>
+                            </div>
+                            <div onClick={() => this.handleLogout()}>
+                                <i class="fas fa-sign-out-alt"></i>
+                                <p>Đăng xuất</p>
+                            </div>
+                        </div>
 
                     </div>
+
+                    <LoginModal
+                        setShow={this.state.setShow}
+                        handlePopupSiginSignup={this.handlePopupSiginSignup}
+                    />
 
                     <SignUpModal
                         setShow={this.state.setShow2}
                         handlePopupSiginSignup={this.handlePopupSiginSignup2}
                     />
 
-                    <LoginModal
-                        setShow={this.state.setShow}
-                        handlePopupSiginSignup={this.handlePopupSiginSignup}
+                    <ChangePasswordModal
+                        setShow={this.state.setShow3}
+                        handlePopupSiginSignup={this.handlePopupSiginSignup3}
                     />
 
 
@@ -179,15 +238,15 @@ class Header extends Component {
                                 {allTagGame && allTagGame.length > 0 &&
                                     allTagGame.map((item, index) => {
                                         return (
-                                            <div className="children">{item.value}</div>
+                                            <div onClick={() => this.handleGoGameByCategory(item.keyMap)} className="children">{item.value}</div>
                                         )
                                     })
                                 }
 
                             </div>
                         </div>
-                        <div class="game-viet-hoa">GAME Việt Hóa</div>
-                        <div class="game-18">GAME 18+</div>
+                        <div onClick={() => this.handleGoGameByCategory('C20')} class="game-viet-hoa">GAME Việt Hóa</div>
+                        <div onClick={() => this.handleGoGameByCategory('C3')} class="game-18">GAME 18+</div>
                         <div class="phan-mem">Phần Mềm</div>
                     </div>
                 </div>
@@ -210,6 +269,8 @@ const mapDispatchToProps = (dispatch) => {
         getGameById: (id) => dispatch(Action.getGameByIdAction(id)),
         getAllTagGame: () => dispatch(Action.getAllTagGameAction()),
         getGameByKeyWord: (keyword) => dispatch(Action.getGameByKeyWordAction(keyword)),
+        LogoutAccount: () => dispatch(Action.LogoutAccountAction()),
+        CheckExpireAccount: () => dispatch(Action.CheckExpireAccountAction()),
 
 
     }

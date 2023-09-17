@@ -10,10 +10,14 @@
 
 body {
     background-image: url("https://static.square-enix-games.com/ffviir-backdrops/ffviir-zoom-cloud-shinra.jpg");
-    background-position: center;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
 }
 
 .container-homepage {
+
+    margin-bottom: 50px;
 
 
 
@@ -202,6 +206,7 @@ body {
 
         .body {
             width: 100%;
+            padding-bottom: 60px;
             // background-color: brown;
 
         }

@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 
-import './HomePage.scss'
+import './FilterByCategory.scss'
 
 import Header from '../header-footer/Headerr'
-import OutStandingGame from "./OutStandingGame";
-import HomeGame from "./HomeGame";
-
-import Footer from "../header-footer/Footer";
+import OutStandingGame from "../home-page/OutStandingGame";
+import Game from "./Game";
 
 import { useParams } from 'react-router-dom';
 
@@ -16,7 +14,7 @@ function withParams(Component) {
     return props => <Component {...props} params={useParams()} />;
 }
 
-class HomePage extends Component {
+class FillterByCategory extends Component {
 
     constructor(props) {
         super(props);
@@ -32,18 +30,15 @@ class HomePage extends Component {
     render() {
 
         return (
-            <div class="container-homepage">
+            <div class="container-FillterByCategory">
                     <div class="content-container">
                         <Header />
                         <div class="body">
 
-                            <OutStandingGame />
-
-                            <HomeGame />
+                            <Game />
 
                         </div>
-                        <Footer/>
-                        
+                        <div class="footer"></div>
                     </div>
                     
 
@@ -52,4 +47,4 @@ class HomePage extends Component {
     }
 }
 
-export default withParams(HomePage);
+export default withParams(FillterByCategory);
